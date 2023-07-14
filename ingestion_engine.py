@@ -1,6 +1,3 @@
-#PDF -> Embeddings Libraries
-#requires pip install pypdf and pip3 install langchain
-
 from langchain.document_loaders import UnstructuredPDFLoader, OnlinePDFLoader, PyPDFLoader, DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms import OpenAI
@@ -23,8 +20,8 @@ def main():
 
     embeddings = OpenAIEmbeddings(openai_api_key='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')
     pinecone.init(
-        api_key='116be029-cfab-4c8b-84d7-d9d95aa035dd',  # find at app.pinecone.io
-        environment='us-west4-gcp-free'  # next to api key in console
+        api_key='116be029-cfab-4c8b-84d7-d9d95aa035dd', 
+        environment='us-west4-gcp-free' 
     )
     index_name = "studybuddy"
 
@@ -34,7 +31,7 @@ def main():
     docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name)
     #query = "How many accidents has the car gotten into?"
     #docs = docsearch.similarity_search(query)
-    # Here's an example of the first document that was returned
+
     #print(docs[0].page_content[:450])
 
 
