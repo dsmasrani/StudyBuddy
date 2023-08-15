@@ -12,6 +12,7 @@ from langchain.vectorstores import Pinecone
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.chains import RetrievalQAWithSourcesChain
+from tqdm.auto import tqdm
 
 textract_config = {
     '.pdf': {
@@ -21,6 +22,9 @@ textract_config = {
 }
 
 VERBOSE = True
+NEW_DATA = False
+batch_limit = 100
+TEXT_PATH = "/Users/devmasrani/Documents/StudyBuddy/data/text_files"
 
 def convert_to_text_files(data_directory):
     text_files_directory = os.path.join(data_directory, 'text_files')
@@ -65,10 +69,6 @@ def text_splitter(data):
     separators=["\n\n", "\n", " ", ""]
     )
     return text_splitter
-    chunks = []
-    for document in data:
-        chunks.append(text_splitter.split_text(document.page_content))
-    return chunks
 
 def initalize_embeddings(data):
     texts = []
@@ -88,7 +88,9 @@ def initalize_embeddings(data):
 
     print(index.describe_index_stats())
     txt_splitter = text_splitter(data)
-    for i, document in enumerate(data):
+    for i, document in enumerate(tqdm(data)):
+        texts = []
+        metadatas = []
         metadata = {
             'source': document.metadata['source']}
         record_texts = txt_splitter.split_text(document.page_content)
@@ -99,18 +101,18 @@ def initalize_embeddings(data):
 
         texts.extend(record_texts)
         metadatas.extend(record_metadatas)
+        for i in range(0,len(texts),batch_limit):
+            text_tmp = texts[i:i+batch_limit]
+            metadata_tmp = metadatas[i:i+batch_limit]
+            print(len(text_tmp))
+            ids = [str(uuid4()) for _ in range(len(text_tmp))]
+            embeds = embed.embed_documents(text_tmp)
+            index.upsert(vectors=zip(ids, embeds, metadata_tmp))
 
-        if len(texts) >= 10:
-            ids = [str(uuid4()) for _ in range(len(texts))]
-            embeds = embed.embed_documents(texts)
-            index.upsert(vectors=zip(ids, embeds, metadatas))
-            texts = []
-            metadatas = []
-
-    if len(texts) > 0:
-        ids = [str(uuid4()) for _ in range(len(texts))]
-        embeds = embed.embed_documents(texts)
-        index.upsert(vectors=zip(ids, embeds, metadatas))
+    #if len(texts) > 0:
+    #    ids = [str(uuid4()) for _ in range(len(texts))]
+    #    embeds = embed.embed_documents(texts)
+    #    index.upsert(vectors=zip(ids, embeds, metadatas))
         
 def query_embeddings(query):
     model_name = 'text-embedding-ada-002'
@@ -149,14 +151,19 @@ def query_embeddings(query):
     print(qa.run(query))
     print(qa_with_sources(query))
 def main():
-    #data_directory = os.path.join(os.getcwd(), 'data')
-    #text_files_directory = convert_to_text_files(data_directory)
-    #loader = DirectoryLoader(text_files_directory)
-    #data = loader.load()
-    #initalize_embeddings(data)
-    #chunks = text_splitter(data)
-    #initalize_embeddings(chunks)
-    #print(data)
-    query_embeddings("What is shashank's phone number?")
+    if NEW_DATA:
+        data_directory = os.path.join(os.getcwd(), 'data')
+        text_files_directory = convert_to_text_files(data_directory)
+        loader = DirectoryLoader(text_files_directory)
+        # loader = DirectoryLoader(TEXT_PATH) IF you want to skip the conversion step
+        data = loader.load() #Data is an an array of Document objects with each object having a page_content and metadata
+        initalize_embeddings(data)
+        
+    print("Input a query (type exit to exit)")
+    query = input()
+    while query.lower() != 'exit':
+        query_embeddings(query)
+        print("Input a query (type exit to exit)")
+        query = input()
 if __name__ == "__main__":
     main()
