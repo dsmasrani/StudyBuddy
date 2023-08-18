@@ -1,0 +1,21 @@
+TODO FOR @ROTIH and @DMASRANI:
+
+@DMASRANI:
+- Update insertion to allow for reoccuring Ids (update UUID with MD5 hash)
+
+@ROTIH:
+ - Support more than pdf-ingestion
+ - Get chaining to work within QAwithSources, so conversational awareness can be provided
+
+ INSTRUCTIONS ON SYSTEM:
+
+    src/constants is where constants are stored... Looks like this:
+
+    OPENAPI_KEY = <OPENAPI KEY>
+    PINECONE_API_KEY = <PINECONE API KEY>
+    PINECONE_ENVIRONMENT = <PINECONE ENVIRONMENT>
+    PINECONE_INDEX_NAME = <PINECONE INDEX>
+
+    python3 src/query.py to run
+    python3 src/query.py -n (for new data being injested)
+    python3 src/query.py -v [-n] (for verbose debug output and potentially new files)
