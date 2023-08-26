@@ -1,7 +1,7 @@
 TODO FOR @ROTIH and @DMASRANI:
 
 @DMASRANI:
-- Update insertion to allow for reoccuring Ids (update UUID with MD5 hash)
+
 
 @ROTIH:
  - Support more than pdf-ingestion

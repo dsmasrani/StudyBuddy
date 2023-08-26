@@ -83,7 +83,7 @@ def main(argv):
 
     if NEW_DATA:
         #loader = DirectoryLoader(os.path.join(os.getcwd(), 'data'), show_progress=True, loader_cls=UnstructuredFileLoader, loader_kwargs={'mode': "single", 'post_processors': [clean_extra_whitespace]} )
-        loader = DirectoryLoader(os.path.join(os.getcwd(), 'data'), show_progress=True, loader_cls=PyPDFLoader)
+        loader = DirectoryLoader(os.path.join(os.getcwd(), 'data'), glob="*.pdf", show_progress=True, loader_cls=PyPDFLoader)
         
         data = loader.load() #Data is an an array of Document objects with each object having a page_content and metadata
         #print(data)

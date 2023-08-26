@@ -8,6 +8,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 import tiktoken
 from uuid import uuid4
 from tqdm.auto import tqdm
+import hashlib
 
 #Batch limit of upload size (can go upto 1000)
 batch_limit = 100
@@ -32,6 +33,12 @@ def text_splitter():
     separators=["\n\n", "\n", " ", ""]
     )
     return text_splitter
+
+#Compute Hash
+def compute_md5(text):
+    m = hashlib.md5()
+    m.update(text.encode('utf-8'))
+    return m.hexdigest()
 
 #Intializes the pinecone index and uploads the embeddings
 ##TODO: Split this function to improve readability
@@ -69,6 +76,6 @@ def initalize_embeddings(data, VERBOSE):
     for i in tqdm(range(0,len(texts),batch_limit)):
         text_tmp = texts[i:i+batch_limit]
         metadata_tmp = metadatas[i:i+batch_limit]
-        ids = [str(uuid4()) for i in range(len(text_tmp))]
+        ids = [compute_md5(text_tmp[i]) for i in range(len(text_tmp))]
         embeds = embed.embed_documents(text_tmp)
         index.upsert(vectors=zip(ids, embeds, metadata_tmp))
