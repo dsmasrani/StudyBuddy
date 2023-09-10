@@ -9,6 +9,7 @@ import tiktoken
 from uuid import uuid4
 from tqdm.auto import tqdm
 import hashlib
+from docx2pdf import convert
 
 #Batch limit of upload size (can go upto 1000)
 batch_limit = 100

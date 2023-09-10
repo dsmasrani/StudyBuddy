@@ -1,10 +1,13 @@
 import sys
 from ingestion_engine.ingestion import *
-from langchain.chains import RetrievalQAWithSourcesChain
+from langchain.chains import RetrievalQAWithSourcesChain, ConversationalRetrievalChain
+from langchain.chains.qa_with_sources import load_qa_with_sources_chain
+from langchain.memory import ConversationBufferMemory
 from tqdm.auto import tqdm
 from constants import OPENAPI_KEY, PINECONE_API_KEY, PINECONE_ENVIRONMENT, PINECONE_INDEX_NAME
 from langchain.vectorstores import Pinecone
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI
 import pinecone
 from langchain.document_loaders import DirectoryLoader, PyPDFLoader
 import os
@@ -25,16 +28,16 @@ def intialize_dependencies():
 
     index = pinecone.Index(PINECONE_INDEX_NAME)
     vectorstore = Pinecone(index, embed.embed_query, "text")
-
+    memory = ConversationBufferMemory(memory_key="chat_history", input_key='question', output_key='answer', return_messages=True)
     llm = ChatOpenAI(
     openai_api_key=OPENAPI_KEY,
     model_name='gpt-3.5-turbo',
-    temperature=0.7
+    temperature=1
     )
-    return (vectorstore, llm)
+    return (vectorstore, llm, memory)
 
 #Performs the similarity search and inputs query into OPENAI, then is formatted and outputted
-def query_embeddings(query, vectorstore, llm):
+def query_embeddings(query, vectorstore, llm, memory):
 
     vectorstore.similarity_search(
         query=query,
@@ -47,11 +50,14 @@ def query_embeddings(query, vectorstore, llm):
     #retriever=vectorstore.as_retriever()
     #)
     #print(qa.run(query))
-    qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(
+    doc_chain = load_qa_with_sources_chain(llm, chain_type="stuff")
+
+    qa_with_sources = RetrievalQAWithSourcesChain.from_llm(
         llm=llm,
-        chain_type="stuff",
-        retriever=vectorstore.as_retriever()
+        retriever=vectorstore.as_retriever(),
+        memory=memory
     )
+    print(memory)
     format_query(qa_with_sources(query))
 
 #Formats the query and prints it to the terminal
@@ -62,11 +68,11 @@ def format_query(query):
     print("Sources: " + str(query["sources"]))
 
 #Allows looping of commands in Command Line Interface
-def terminal_query(vectorstore, llm):
+def terminal_query(vectorstore, llm, memory):
     print("Input a query (type exit to exit)")
     query = input()
     while query.lower() != 'exit':
-        query_embeddings(query, vectorstore, llm)
+        query_embeddings(query, vectorstore, llm, memory)
         print("Input a query (type exit to exit)")
         query = input()
 
@@ -89,9 +95,9 @@ def main(argv):
         #print(data)
         initalize_embeddings(data, VERBOSE)
 
-    vectorstore, llm = intialize_dependencies()
+    vectorstore, llm, memory = intialize_dependencies()
 
-    terminal_query(vectorstore, llm)
+    terminal_query(vectorstore, llm, memory)
 
 if __name__ == "__main__":
     argv = sys.argv
