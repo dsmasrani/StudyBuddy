@@ -41,7 +41,7 @@ def query_embeddings(query, vectorstore, llm, memory):
 
     vectorstore.similarity_search(
         query=query,
-        k=20,
+        k=10,
     )
 
     #qa = RetrievalQA.from_chain_type(
