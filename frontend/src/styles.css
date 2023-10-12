@@ -1,0 +1,69 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #E9E9E9;
+    height: 100vh;
+    padding: 2em;
+  }
+  
+  .app-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2em;
+  }
+  
+  .logout-button {
+    background-color: #FF6262;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 0.5em 1em;
+    cursor: pointer;
+  }
+  
+  .content-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 2em;
+  }
+  
+  .api-keys, .setup-section {
+    background-color: #A4DAA4;
+    padding: 1em;
+    border-radius: 8px;
+  }
+  
+  input[type="password"] {
+    width: 100%;
+    padding: 0.5em;
+    margin-top: 0.5em;
+  }
+  
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+    margin-top: 1em;
+  }
+  
+  .pagination-button {
+    background-color: #D5D5D5;
+    border: none;
+    padding: 0.5em;
+    cursor: pointer;
+  }
+  
+  .chatbox {
+    width: 100%;
+    height: 300px; /* adjust as needed */
+    background-color: white;
+    margin-top: 2em;
+    border-radius: 8px;
+    padding: 1em;
+  }
+  

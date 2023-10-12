@@ -1,0 +1,4 @@
+OPENAPI_KEY = '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'
+PINECONE_API_KEY = '116be029-cfab-4c8b-84d7-d9d95aa035dd'
+PINECONE_ENVIRONMENT = 'us-west4-gcp-free'
+PINECONE_INDEX_NAME = 'studybuddytest'
