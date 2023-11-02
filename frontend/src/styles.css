@@ -2,8 +2,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #E9E9E9;
     height: 100vh;
+    width: 100%;
     padding: 2em;
   }
   

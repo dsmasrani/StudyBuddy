@@ -1,5 +1,7 @@
 import React from 'react';
 import './styles.css'
+import UserContext from './UserContext';
+import ChatBox from './ChatBox';
 
 class ChatPage extends React.Component {
     render() {
@@ -24,7 +26,9 @@ class ChatPage extends React.Component {
                 </div>
                 </div>
             </section>
-            <div className="chatbox"></div>
+            <div className="chatbox">
+                <ChatBox />
+            </div>
             </div>
         );
     };
