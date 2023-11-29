@@ -1,4 +1,7 @@
 Initialize and Upload Embeddings to Pinecone:
+/ingestion/initialize-embeddings GET
+### Returns 
+
 /ingestion/upload-embeddings POST
 Request Body: `[{ "text": "string", "source": "string", "page": "integer" }]`
 Response: `{ "uploadStatus": "string", "failedRecords": "array" }`
