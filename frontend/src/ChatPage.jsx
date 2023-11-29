@@ -12,6 +12,7 @@ class ChatPage extends React.Component {
                 <button className="logout-button">LOG OUT</button>
             </header>
             <section className="content-section">
+                <div className="api-container">
                 <div className="api-keys">
                 <h2>API KEYS</h2>
                 <input type="password" placeholder="enter password to view" />
@@ -25,10 +26,12 @@ class ChatPage extends React.Component {
                     <button className="pagination-button">&gt;</button>
                 </div>
                 </div>
-            </section>
-            <div className="chatbox">
+                </div>
+                <div className="chatbox">
                 <ChatBox />
             </div>
+            </section>
+            
             </div>
         );
     };
