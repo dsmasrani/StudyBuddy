@@ -31,7 +31,7 @@ def intialize_dependencies():
     memory = ConversationBufferMemory(memory_key="chat_history", input_key='question', output_key='answer', return_messages=True)
     llm = ChatOpenAI(
     openai_api_key=OPENAPI_KEY,
-    model_name='gpt-3.5-turbo',
+    model_name='gpt-4',
     temperature=1
     )
     return (vectorstore, llm, memory)
