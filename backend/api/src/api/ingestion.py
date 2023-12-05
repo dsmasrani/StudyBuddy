@@ -13,9 +13,24 @@ router = APIRouter(
 
 
 @router.get("/initialize_embeddings")
-def initialize_embeddings():
+def initialize_embeddings(file_id: int, user_id: str):
     """"""
-    return
+    with db.engine.begin() as connection:
+        user_keys_query = sqlalchemy.text("SELECT * FROM user_keys WHERE id = :user_id")
+        file_info_query = sqlalchemy.text("SELECT * FROM files WHERE id = :file_id")
+
+        user_keys_result = connection.execute(user_keys_query, {'user_id': user_id}).fetchone()
+        file_info_result = connection.execute(file_info_query, {'file_id': file_id}).fetchone()
+
+        if not user_keys_result or not file_info_result:
+            return "User keys or file not found"
+
+        pinecone_key = user_keys_result.pinecone_key
+        openai_key = user_keys_result.openai_key
+
+        # run_ingestion(file_info, pinecone_key, openai_key)
+
+    return {"message": "Ingestion initialized successfully"}
     
     
 @router.post("/upload_embeddings")
