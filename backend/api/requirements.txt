@@ -6,7 +6,7 @@ cryptography == 41.0.5
 psycopg2-binary~=2.9.3
 python-dotenv
 Faker
-numpy == 1.26.2
+numpy
 pre-commit == 3.5.0
 langchain==0.0.274
 openai==0.27.8
