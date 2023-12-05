@@ -7,14 +7,14 @@ psycopg2-binary~=2.9.3
 python-dotenv
 Faker
 numpy
-pre-commit == 3.5.0
-langchain==0.0.274
-openai==0.27.8
-pdfminer==20191125
-pdfminer.six==20221105
-pinecone_client==2.2.2
-tiktoken==0.4.0
-tqdm==4.65.0
-unstructured==0.5.6
-pinecone-client[grpc]==2.2.2
-docx2pdf==0.1.8
+pre-commit
+langchain
+openai
+pdfminer
+pdfminer.six
+pinecone_client
+tiktoken
+tqdm
+unstructured
+pinecone-client[grpc]
+docx2pdf
