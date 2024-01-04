@@ -10,7 +10,7 @@
         "request": "launch",
         "module": "uvicorn",
         "args": [
-            "backend.api.src.api.server:app"
+            "api.src.api.server:app"
         ],
         "jinja": true,
         "justMyCode": true

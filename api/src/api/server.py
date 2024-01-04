@@ -1,7 +1,7 @@
 from fastapi import FastAPI, exceptions
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from backend.api.src.api import ingestion, query
+from api.src.api import ingestion, query
 import json
 import logging
 import sys
