@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from api.src.api import auth
 import sqlalchemy
 from api.src import database as db
+import httpx
+import os
+import dotenv
 
 
 router = APIRouter(
@@ -12,25 +15,33 @@ router = APIRouter(
 )    
 
 
-@router.get("/initialize_embeddings")
-def initialize_embeddings(file_id: int, user_id: str):
+@router.get("/retrieve_files")
+async def retrieve_embeddings():
     """"""
-    with db.engine.begin() as connection:
-        user_keys_query = sqlalchemy.text("SELECT * FROM user_keys WHERE user_id = :user_id")
-        file_info_query = sqlalchemy.text("SELECT * FROM files WHERE id = :file_id")
+    dotenv.load_dotenv()
+    key=str(os.environ.get("PROJECT_KEY"))
+    url=str(os.environ.get("PROJECT_URL"))
+    print(key)
+    print(url)
+    print(f"Bearer {key}")
+    curl = f"{url}/storage/v1/object/list/files"
+    print(curl)
+    headers = {
+        "authorization": f"Bearer {key}"
+    }
+    data = {
+        "prefix": "", 
+        "limit": 100  
+    }
 
-        user_keys_result = connection.execute(user_keys_query, {'user_id': user_id}).fetchone()
-        file_info_result = connection.execute(file_info_query, {'file_id': file_id}).fetchone()
-        print(user_keys_result)
-        print(file_info_result)
+    async with httpx.AsyncClient() as client:
+        response = await client.post(curl, json=data, headers=headers)
 
-        if not user_keys_result or not file_info_result:
-            return "User keys or file not found"
+    #if response.status_code != 200:
+    #   raise HTTPException(status_code=response.status_code, detail="Error listing bucket files")
 
-        pinecone_key = user_keys_result.pinecone_key
-        openai_key = user_keys_result.openai_key
-
-        # run_ingestion(file_info, pinecone_key, openai_key)
+    file_list = response.json()
+    print(file_list)
 
     return {"message": "Ingestion initialized successfully"}
     
