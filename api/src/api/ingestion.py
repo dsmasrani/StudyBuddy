@@ -15,6 +15,10 @@ import os
 import dotenv
 from supabase import create_client, Client
 
+url: str = os.environ.get("PROJECT_URL")
+key: str = os.environ.get("PROJECT_KEY")
+supabase: Client = create_client(url, key)
+
 batch_limit = 100
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 router = APIRouter(
@@ -25,10 +29,14 @@ router = APIRouter(
 
 
 @router.get("/retrieve_files")
-def retrieve_embeddings():
-    """"""
-    res = supabase.storage.list_buckets()   
-    return res
+def retrieve_files():
+    """"""    
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text("SELECT name from objects ORDER BY created_at ASC")).fetchall()
+
+    files = [{"name": row[0]} for row in result]
+
+    return files
 
 @router.post("/process_file")
 def process_file(file_url: str, user_email: str):
