@@ -65,7 +65,7 @@ def intialize_dependencies(pinecone_key, pinecone_env, index_name, openai_key):
     llm = ChatOpenAI(
     openai_api_key=openai_key,
     model_name='gpt-4',
-    temperature=1
+    temperature=0.7
     )
     return (vectorstore, llm)
 
@@ -81,8 +81,9 @@ def query_embeddings(query, vectorstore, llm):
         llm=llm,
         retriever=vectorstore.as_retriever(),
     )
-
-    return format_query(qa_with_sources(query))
+    q = qa_with_sources(query)
+    print(q)
+    return format_query(q)
 
 def format_query(query):
     out = {}

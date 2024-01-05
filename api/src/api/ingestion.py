@@ -34,7 +34,7 @@ def retrieve_embeddings():
     res = supabase.storage.list_buckets()   
     return res
 
-@router.get("/process_file")
+@router.post("/process_file")
 def process_file(file_url: str, user_email: str):
     """"""
     logging.debug("Getting Credentials")
