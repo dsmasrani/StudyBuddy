@@ -16,4 +16,4 @@ pinecone_client==2.2.2
 tiktoken==0.4.0
 tqdm==4.65.0
 pinecone-client[grpc]==2.2.2
-supabase
+supabase==2.3.1
