@@ -39,9 +39,14 @@ def retrieve_files():
     return files
 
 @router.post("/resolve_queue")
-def resolve_queue():
+def resolve_queue(background_tasks: BackgroundTasks):
     files = retrieve_files()
     logging.debug("Retrieved list of files")
+    
+    background_tasks.add_task(backgroundProcessing, files)
+    return {"message": "Queue processing started successfully"}
+
+def backgroundProcessing(files):
     for file in files:
         file_name = file['name']
         if ".emptyFolderPlaceholder" in file_name:
@@ -62,14 +67,14 @@ def resolve_queue():
             raise HTTPException(403, "Invalid Credentials")
         user_email = user_keys_result.user_email
         logging.debug("Starting Ingestion")
-        process_file(file_url, user_email)
+        process_file(file_url, user_email, file_name)
         supabase.storage.from_('files').remove(file_name)
     logging.debug("queue resolved successfully (or empty)")
-    return {"message": "queue resolved successfully (or empty)"}
-
+    print("Queue resolved successfully (or empty)")
+    return 200
 
 @router.post("/process_file")
-def process_file(file_url: str, user_email: str):
+def process_file(file_url: str, user_email: str, file_name: str = None):
     """"""
     logging.debug("Getting Credentials")
     with db.engine.begin() as connection:
@@ -90,11 +95,11 @@ def process_file(file_url: str, user_email: str):
         logging.debug("Pinecone Key: %s, Pinecone Env: %s, Index Name: %s, OpenAI Key: %s", pinecone_key, pinecone_env, index_name, openai_key)
 
         logging.debug("Starting Ingestion")
-        run_ingestion(pinecone_key, pinecone_env, index_name, openai_key, user_email, file_url)
+        run_ingestion(pinecone_key, pinecone_env, index_name, openai_key, user_email, file_url, file_name)
 
     return {"message": "Ingestion initialized successfully"}
 
-def run_ingestion(pinecone_key, pinecone_env, index_name, openai_key, user_email, file_url):
+def run_ingestion(pinecone_key, pinecone_env, index_name, openai_key, user_email, file_url, file_name):
     """ """
     #uri = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
     #uri = somefunction()
@@ -108,10 +113,10 @@ def run_ingestion(pinecone_key, pinecone_env, index_name, openai_key, user_email
     logging.debug("Loading PDF to memory (This might take a while)...")
     data = loader.load() #Data is an an array of Document objects with each object having a page_content and metadata
     logging.debug("PDF loaded successfully")
-    return initalize_embeddings(pinecone_key, pinecone_env, index_name, openai_key, data, user_email)
+    return initalize_embeddings(pinecone_key, pinecone_env, index_name, openai_key, data, user_email, file_name)
 
 
-def initalize_embeddings(pinecone_key, pinecone_env, index_name, openai_key, data, user_email):
+def initalize_embeddings(pinecone_key, pinecone_env, index_name, openai_key, data, user_email, file_name):
     texts = []
     metadatas = []
     model_name = 'text-embedding-ada-002'
@@ -132,11 +137,11 @@ def initalize_embeddings(pinecone_key, pinecone_env, index_name, openai_key, dat
     logging.debug("Splitting PDF into chunks and injecting metadata...")
     for i, document in enumerate(tqdm(data)): #For each page in the document
         metadata = {
-            'source': document.metadata['source'],
+            'source': document.metadata['source'] if not file_name else file_name,
             'page': document.metadata['page'] + 1,}
         record_texts = txt_splitter.split_text(document.page_content)
         record_metadatas = [{
-            "chunk": j, "text": chunk, 'source': (document.metadata['source'].split('/')[-1] + ' Page: ' + str(document.metadata['page'])) 
+            "chunk": j, "text": chunk, 'source': ((document.metadata['source'].split('/')[-1] if not file_name else file_name) + ' Page: ' + str(document.metadata['page'])) 
         } for j, chunk in enumerate(record_texts)] #Each page will be associated with a metadata
         texts.extend(record_texts)
         metadatas.extend(record_metadatas)
