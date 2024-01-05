@@ -38,6 +38,37 @@ def retrieve_files():
 
     return files
 
+@router.post("/resolve_queue")
+def resolve_queue():
+    files = retrieve_files()
+    files.remove(files[0])
+    print(files)
+    logging.debug("Retrieved list of files")
+    for file in files:
+        file_name = file['name']
+        if ".emptyFolderPlaceholder" in file_name:
+            continue
+        logging.debug("Processing file %s", file_name)
+        signed_file_url = supabase.storage.from_('files').create_signed_url(file_name, 3600)
+        print(signed_file_url)
+        logging.debug("Public URL: %s", signed_file_url)
+        file_url = signed_file_url['signedURL']
+        user_UUID = file_name.split('/')[0]
+        print(user_UUID)
+        logging.debug("User UUID: %s", user_UUID)
+        try:
+            with db.engine.begin() as connection:
+                user_keys_query = sqlalchemy.text("SELECT * FROM user_keys WHERE user_id = :user_UUID")
+                user_keys_result = connection.execute(user_keys_query, {'user_UUID': user_UUID}).fetchone()
+        except:
+            logging.error("Invalid Credentials.")
+            raise HTTPException(403, "Invalid Credentials")
+        print("User_keys_result: ", user_keys_result)
+        user_email = user_keys_result.user_email
+        logging.debug("Starting Ingestion")
+        process_file(file_url, user_email)
+        supabase.storage.from_('files').remove(file_name)
+
 @router.post("/process_file")
 def process_file(file_url: str, user_email: str):
     """"""
@@ -75,6 +106,7 @@ def run_ingestion(pinecone_key, pinecone_env, index_name, openai_key, user_email
     #uri = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
     #uri = somefunction()
     logging.debug("Downloading PDF from %s", file_url)
+    print("Downlaoding PDF from", file_url)
     try:
         loader = PyPDFLoader(file_url)
     except:
