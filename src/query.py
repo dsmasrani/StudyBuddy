@@ -28,16 +28,15 @@ def intialize_dependencies():
 
     index = pinecone.Index(PINECONE_INDEX_NAME)
     vectorstore = Pinecone(index, embed.embed_query, "text")
-    memory = ConversationBufferMemory(memory_key="chat_history", input_key='question', output_key='answer', return_messages=True)
     llm = ChatOpenAI(
     openai_api_key=OPENAPI_KEY,
     model_name='gpt-4',
     temperature=1
     )
-    return (vectorstore, llm, memory)
+    return (vectorstore, llm)
 
 #Performs the similarity search and inputs query into OPENAI, then is formatted and outputted
-def query_embeddings(query, vectorstore, llm, memory):
+def query_embeddings(query, vectorstore, llm):
 
     vectorstore.similarity_search(
         query=query,
@@ -55,9 +54,7 @@ def query_embeddings(query, vectorstore, llm, memory):
     qa_with_sources = RetrievalQAWithSourcesChain.from_llm(
         llm=llm,
         retriever=vectorstore.as_retriever(),
-        memory=memory
     )
-    print(memory)
     format_query(qa_with_sources(query))
 
 #Formats the query and prints it to the terminal
@@ -68,11 +65,11 @@ def format_query(query):
     print("Sources: " + str(query["sources"]))
 
 #Allows looping of commands in Command Line Interface
-def terminal_query(vectorstore, llm, memory):
+def terminal_query(vectorstore, llm):
     print("Input a query (type exit to exit)")
     query = input()
     while query.lower() != 'exit':
-        query_embeddings(query, vectorstore, llm, memory)
+        query_embeddings(query, vectorstore, llm)
         print("Input a query (type exit to exit)")
         query = input()
 
@@ -95,9 +92,9 @@ def main(argv):
         #print(data)
         initalize_embeddings(data, VERBOSE)
 
-    vectorstore, llm, memory = intialize_dependencies()
+    vectorstore, llm = intialize_dependencies()
 
-    terminal_query(vectorstore, llm, memory)
+    terminal_query(vectorstore, llm)
 
 if __name__ == "__main__":
     argv = sys.argv
