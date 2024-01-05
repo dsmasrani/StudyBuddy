@@ -129,7 +129,7 @@ except Exception as e:
     }
 
 layout = [
-    [sg.Column([[sg.Image("backend/img/logo.png")]], justification='center')],
+    [sg.Column([[sg.Image("img/logo.png")]], justification='center')],
     [sg.Text("Choose a folder:")],
     [sg.InputText(key="folder_path", size=(50,1), enable_events=True), sg.FolderBrowse()],
     [sg.Text("OPENAPI KEY:"), sg.InputText(key="openapi_key", size=(50,1), default_text=loaded_data["openapi_key"])],
