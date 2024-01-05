@@ -15,10 +15,6 @@ import os
 import dotenv
 from supabase import create_client, Client
 
-url: str = os.environ.get("PROJECT_URL")
-key: str = os.environ.get("PROJECT_KEY")
-supabase: Client = create_client(url, key)
-
 batch_limit = 100
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 router = APIRouter(
@@ -34,7 +30,7 @@ def retrieve_embeddings():
     res = supabase.storage.list_buckets()   
     return res
 
-@router.get("/process_file")
+@router.post("/process_file")
 def process_file(file_url: str, user_email: str):
     """"""
     logging.debug("Getting Credentials")
