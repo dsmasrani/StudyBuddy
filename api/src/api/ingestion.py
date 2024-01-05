@@ -15,10 +15,6 @@ import os
 import dotenv
 from supabase import create_client, Client
 
-url: str = os.environ.get("PROJECT_URL")
-key: str = os.environ.get("PROJECT_KEY")
-supabase: Client = create_client(url, key)
-
 batch_limit = 100
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 router = APIRouter(
