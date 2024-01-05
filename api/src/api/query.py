@@ -36,35 +36,30 @@ def list_bucket(url: str, key: str):
     return res
 
 @router.get("/query")
-def query(question: str, user_email: str):
+def query(question: str, user_UUID: str):
     """"""
+    user_keys_result = None
     with db.engine.begin() as connection:
-        user_keys_query = sqlalchemy.text("SELECT * FROM user_keys WHERE user_email = :user_email")
+        user_keys_query = sqlalchemy.text("SELECT * FROM user_keys WHERE user_id = :user_UUID")
+        user_keys_result = connection.execute(user_keys_query, {'user_UUID': user_UUID}).fetchone()
 
-        user_keys_result = connection.execute(user_keys_query, {'user_email': user_email}).fetchone()
         #print(user_keys_result)
 
-        if not user_keys_result:
-            logging.error("Invalid Credentials. Please check your email and try again.")
-            raise HTTPException(400, "Invalid Credentials. Please check your email and try again.")
+    if not user_keys_result:
+        logging.error("Invalid Credentials. Please check your email and try again.")
+        raise HTTPException(400, "Invalid Credentials. Please check your email and try again.")
 
-        pinecone_key = user_keys_result.pinecone_key
-        pinecone_env = user_keys_result.pinecone_env
-        index_name = user_keys_result.index_name
-        openai_key = user_keys_result.openai_key
+    pinecone_key = user_keys_result.pinecone_key
+    pinecone_env = user_keys_result.pinecone_env
+    index_name = user_keys_result.index_name
+    openai_key = user_keys_result.openai_key
 
-        logging.debug("Credentials retrieved successfully")
-        logging.debug("Pinecone Key: %s, Pinecone Env: %s, Index Name: %s, OpenAI Key: %s", pinecone_key, pinecone_env, index_name, openai_key)
-        vectorstore, llm  = intialize_dependencies(pinecone_key, pinecone_env, index_name, openai_key)
-        logging.debug("Dependencies initialized successfully")
-        out = query_embeddings(question, vectorstore, llm)
+    logging.debug("Credentials retrieved successfully")
+    logging.debug("Pinecone Key: %s, Pinecone Env: %s, Index Name: %s, OpenAI Key: %s", pinecone_key, pinecone_env, index_name, openai_key)
+    vectorstore, llm  = intialize_dependencies(pinecone_key, pinecone_env, index_name, openai_key)
+    logging.debug("Dependencies initialized successfully")
+    out = query_embeddings(question, vectorstore, llm)
     return out
-    
-@router.post("/query_embeddings")
-def query_embeddings():
-    """"""
-
-    return 
 
 ## Intialize pinecone and ChatGPT objects which are accessed in the future
 def intialize_dependencies(pinecone_key, pinecone_env, index_name, openai_key):
