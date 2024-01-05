@@ -17,24 +17,6 @@ router = APIRouter(
 )
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
-@router.get("/list_bucket")
-def list_bucket(url: str, key: str):
-    """"""
-    url: url
-    key: key
-    supabase: Client = create_client(url, key)
-    res = supabase.storage.list_buckets()  
-    # Handling the response
-    print(res)
-    #if res.error:
-    #    print("Error:", res.error)
-    #else:
-    #    for bucket in res.data:
-    #        print("Bucket ID:", bucket.id, "Bucket Name:", bucket.name)
- 
-    return res
-
 @router.get("/query")
 def query(question: str, user_UUID: str):
     """"""
