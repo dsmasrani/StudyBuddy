@@ -5,6 +5,7 @@ from constants import OPENAPI_KEY, PINECONE_API_KEY, PINECONE_ENVIRONMENT, PINEC
 from langchain.embeddings.openai import OpenAIEmbeddings
 import pinecone
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.document_loaders import DirectoryLoader, PyPDFLoader, OnlinePDFLoader
 import tiktoken
 from uuid import uuid4
 from tqdm.auto import tqdm
