@@ -1,4 +1,4 @@
-# FactFinder
+# StudyBuddy
 
 This is a project by @dsmasrani and @rotih aiming to change how users access ChatGPT. The aim is to allow any user to upload a folder full of documents to ChatGPT (pdf files) and ask it questions based on the context provided.
 
