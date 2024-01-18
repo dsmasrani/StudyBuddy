@@ -1,12 +1,3 @@
-TODO FOR @ROTIH and @DMASRANI:
-
-@DMASRANI:
-
-
-@ROTIH:
- - Support more than pdf-ingestion
- - Get chaining to work within QAwithSources, so conversational awareness can be provided
-
  INSTRUCTIONS ON SYSTEM:
 
     src/constants is where constants are stored... Looks like this:
