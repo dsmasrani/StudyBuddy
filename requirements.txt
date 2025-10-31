@@ -9,12 +9,11 @@ Faker == 20.1.0
 numpy == 1.26.2
 pre-commit == 3.5.0
 langchain==0.0.274
-openai==0.27.8
-pypdf == 3.17.2
+openai==2.6.1
 pdfminer==20191125
 pdfminer.six==20221105
-pinecone_client==2.2.2
+pinecone==6.0
 tiktoken==0.4.0
 tqdm==4.65.0
-pinecone-client[grpc]==2.2.2
+## Removed legacy pinecone-client v2 to avoid conflicts with new pinecone SDK
 supabase==2.3.1

@@ -5,8 +5,8 @@ import time
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from langchain.embeddings.openai import OpenAIEmbeddings
-import pinecone
+from openai import OpenAI
+from pinecone import Pinecone
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import DirectoryLoader, PyPDFLoader
 import tiktoken
@@ -50,18 +50,38 @@ def compute_md5(text):
 def initalize_embeddings(data, VERBOSE, progress_outer, window):
     texts = []
     metadatas = []
-    model_name = 'text-embedding-ada-002'
-    embed = OpenAIEmbeddings(
-        model=model_name,
-        openai_api_key=OPENAPI_KEY,
-    )
+    model_name = 'text-embedding-3-small'
+    class SimpleOpenAIEmbeddings:
+        def __init__(self, api_key: str, model: str):
+            self.client = OpenAI(api_key=api_key)
+            self.model = model
+            self.target_dim = 1024
+        def embed_query(self, text: str):
+            response = self.client.embeddings.create(model=self.model, input=text)
+            vec = response.data[0].embedding
+            if len(vec) > self.target_dim:
+                return vec[:self.target_dim]
+            if len(vec) < self.target_dim:
+                return vec + [0.0] * (self.target_dim - len(vec))
+            return vec
+        def embed_documents(self, texts):
+            response = self.client.embeddings.create(model=self.model, input=texts)
+            out = []
+            for d in response.data:
+                vec = d.embedding
+                if len(vec) > self.target_dim:
+                    out.append(vec[:self.target_dim])
+                elif len(vec) < self.target_dim:
+                    out.append(vec + [0.0] * (self.target_dim - len(vec)))
+                else:
+                    out.append(vec)
+            return out
 
-    pinecone.init(
-        api_key=PINECONE_API_KEY,
-        environment=PINECONE_ENVIRONMENT,
-    )
+    embed = SimpleOpenAIEmbeddings(api_key=OPENAPI_KEY, model=model_name)
 
-    index = pinecone.GRPCIndex(PINECONE_INDEX_NAME)
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+
+    index = pc.Index(PINECONE_INDEX_NAME)
     print(index.describe_index_stats()) if VERBOSE else None
     txt_splitter = text_splitter()
     texts = []
